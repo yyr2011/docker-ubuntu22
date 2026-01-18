@@ -1,0 +1,30 @@
+name: Build Docker Image Tar (x86)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build image and export tar (amd64)
+      run: |
+        docker buildx build \
+          --platform linux/amd64 \
+          --output type=docker,dest=ubuntu22-amd64.tar \
+          .
+
+    - name: Upload tar artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ubuntu22-amd64-docker-tar
+        path: ubuntu22-amd64.tar
