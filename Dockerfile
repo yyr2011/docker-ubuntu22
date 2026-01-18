@@ -2,7 +2,7 @@ FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 默认英文环境（推荐）
+# 默认英文，支持中文
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
@@ -19,4 +19,6 @@ RUN apt update && \
     update-locale LANG=en_US.UTF-8 && \
     apt clean && rm -rf /var/lib/apt/lists/*
 
-CMD ["bash"]
+# -------- 容器常驻关键 --------
+# 使用 exec 形式，保证 PID 1 正确
+CMD ["bash", "-c", "while true; do sleep 3600; done"]
