@@ -1,30 +1,47 @@
-name: Build Docker Image Tar (x86)
+name: Build Docker Images (amd64)
 
-on:
-  push:
-    branches:
-      - main
+on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
+    - name: Checkout
       uses: actions/checkout@v4
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Build image and export tar (amd64)
+    # -------- base --------
+    - name: Build base image
       run: |
         docker buildx build \
           --platform linux/amd64 \
-          --output type=docker,dest=ubuntu22-amd64.tar \
-          .
+          --output type=docker,dest=base-amd64.tar \
+          base
 
-    - name: Upload tar artifact
+    # -------- neo4j --------
+    - name: Build neo4j image
+      run: |
+        docker buildx build \
+          --platform linux/amd64 \
+          --output type=docker,dest=neo4j-amd64.tar \
+          neo4j
+
+    # -------- postgres + pgvector --------
+    - name: Build postgres-pgvector image
+      run: |
+        docker buildx build \
+          --platform linux/amd64 \
+          --output type=docker,dest=postgres-pgvector-amd64.tar \
+          postgres-pgvector
+
+    - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ubuntu22-amd64-docker-tar
-        path: ubuntu22-amd64.tar
+        name: docker-images-amd64
+        path: |
+          base-amd64.tar
+          neo4j-amd64.tar
+          postgres-pgvector-amd64.tar
